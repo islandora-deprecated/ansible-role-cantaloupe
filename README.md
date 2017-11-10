@@ -9,52 +9,35 @@ An Ansible role that installs [Cantaloupe](https://github.com/medusa-project/can
 
 Available variables are listed below, along with default values:
 
-Version to install:
 ```
+# Cantaloupe version
 cantaloupe_version: 3.3.1
-```
-
-Where to install:
-```
+# Where to extract the cantaloupe archive
 cantaloupe_install_root: /opt
-```
-
-Name of symlink to create:
-```
+# Target of a symlink from the extracted cantaloupe archive 
 cantaloupe_symlink: /opt/cantaloupe
-```
-
-Where to put log files:
-```
+# Path to cantaloupe logs
 cantaloupe_log_path: /var/log/cantaloupe
-```
-
-Cantaloupe user/group:
-```
+# Cantaloupe user
 cantaloupe_user: cantaloupe
+# Cantaloupe group
 cantaloupe_group: cantaloupe
-```
 
-Whether to deploy the Cantaloupe war to the Tomcat webapps directory:
-```
+# Whether to automatically deploy the war file
 cantaloupe_deploy_war: no
-```
-
-Where to deploy wars to:
-```
+# Where to deploy the war to
 cantaloupe_deploy_war_path: /path/to/tomcat/webapps
-```
-
-What to name the war (which is also the Tomcat context path):
-```
+# Name for the deployed war (minus .war), this is the context path
 cantaloupe_deploy_war_filename: cantaloupe
+# Create the filesystem cache directory automatically
+cantaloupe_create_FilesystemCache_dir: no
 ```
 
-There are many more options documented in the [defaults/main.yml](defaults/main.yml)
+There are many more options available and documented in the [defaults/main.yml](defaults/main.yml)
 
 ## Dependencies
 
-* [islandora.tomcat8](https://github.com/Islandora-DevOps/ansible-role-tomcat8)
+* A tomcat 8 container like [islandora.tomcat8](https://github.com/Islandora-DevOps/ansible-role-tomcat8)
   
 ## Example Playbook
 

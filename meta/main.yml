@@ -22,5 +22,4 @@ galaxy_info:
     - server
     - web
     - installer
-dependencies:
-  - { role: islandora.tomcat8 }
+dependencies: []
