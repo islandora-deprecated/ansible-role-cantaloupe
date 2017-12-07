@@ -37,13 +37,15 @@ There are many more options available and documented in the [defaults/main.yml](
 
 ## Dependencies
 
-* A tomcat 8 container like [islandora.tomcat8](https://github.com/Islandora-DevOps/ansible-role-tomcat8)
+* Islandora-Devops.tomcat8
+     * [Github](https://github.com/Islandora-Devops/ansible-role-tomcat8)
+     * [Galaxy](https://galaxy.ansible.com/Islandora-Devops/tomcat8/)
   
 ## Example Playbook
 
     - hosts: webservers
       roles:
-        - { role: islandora.cantaloupe }
+        - { role: Islandora-Devops.cantaloupe }
 
 ## License
 
