@@ -1,10 +1,10 @@
 ---
 
 # Cantaloupe version
-cantaloupe_version: 3.3.1
+cantaloupe_version: 4.1.7
 # Where to extract the cantaloupe archive
 cantaloupe_install_root: /opt
-# Target of a symlink from the extracted cantaloupe archive 
+# Target of a symlink from the extracted cantaloupe archive
 cantaloupe_symlink: /opt/cantaloupe
 # Path to cantaloupe logs
 cantaloupe_log_path: /var/log/cantaloupe
@@ -12,6 +12,11 @@ cantaloupe_log_path: /var/log/cantaloupe
 cantaloupe_user: cantaloupe
 # Cantaloupe group
 cantaloupe_group: cantaloupe
+# !! Leave blank to use the JVM default temporary directory.
+cantaloupe_temp_pathname:
+#  !! Maximum size of the HTTP(S) request queue. Leave blank to use the
+# default.
+cantaloupe_http_accept_queue_limit:
 
 # Whether to automatically deploy the war file
 cantaloupe_deploy_war: no
@@ -31,12 +36,14 @@ cantaloupe_create_FilesystemCache_dir: no
 cantaloupe_http_enabled: "true"
 cantaloupe_http_host: 0.0.0.0
 cantaloupe_http_port: 8182
+cantaloupe_http2_enabled: false
 
 # !! Whether to enable HTTPS access (https://), and on what host interface
 # and TCP port. (Applies in standalone mode only.)
 cantaloupe_https_enabled: "false"
 cantaloupe_https_host: 0.0.0.0
 cantaloupe_https_port: 8183
+cantaloupe_https2_enabled: false
 
 # !! Available values are `JKS` and `PKCS12`. (Standalone mode only.)
 cantaloupe_https_key_store_type: JKS
@@ -48,11 +55,6 @@ cantaloupe_https_key_password: myPassword
 cantaloupe_auth_basic_enabled: "false"
 cantaloupe_auth_basic_username: myself
 cantaloupe_auth_basic_secret: mypassword
-
-# Enables the Control Panel, at /admin.
-cantaloupe_admin_enabled: "false"
-# Password to access the Control Panel. (The username is "admin".)
-cantaloupe_admin_password:
 
 # Base URI to use for internal links, such as Link headers and JSON-LD @id
 # values, in a reverse-proxy context. This should only be used when
@@ -70,6 +72,9 @@ cantaloupe_slash_substitute:
 # the server. Requests for more pixels than this will receive an error
 # response. Set to 0 for no maximum.
 cantaloupe_max_pixels: 400000000
+
+# Maximum scale to allow (1.0 = full scale; 0 = no maximum).
+cantaloupe_max_scale: 1.0
 
 # Sometimes helpful.
 cantaloupe_print_stack_trace_on_error_pages: "true"
@@ -103,6 +108,9 @@ cantaloupe_endpoint_iiif_2_enabled: "true"
 # values are `inline`, `attachment`, and `none`.
 cantaloupe_endpoint_iiif_content_disposition: inline
 
+# Minimum size that will be used in info.json `sizes` keys.
+cantaloupe_endpoint_iiif_min_size: 64
+
 # Minimum size that will be used in info.json "tiles" keys. See the user
 # manual for an explanation of how these are calculated.
 cantaloupe_endpoint_iiif_min_tile_size: 1024
@@ -110,6 +118,11 @@ cantaloupe_endpoint_iiif_min_tile_size: 1024
 # If "true", requests for sizes other than those specified in an info.json
 # response will be denied.
 cantaloupe_endpoint_iiif_2_restrict_to_sizes: "false"
+
+# Enables the Control Panel, at /admin.
+cantaloupe_admin_enabled: false
+cantaloupe_admin_username: myself
+cantaloupe_admin_password: mypassword
 
 # Enables the administrative REST API. (See the user manual.)
 cantaloupe_endpoint_api_enabled: "false"
@@ -134,7 +147,7 @@ cantaloupe_resolver_static: FilesystemResolver
 cantaloupe_resolver_delegate: "false"
 
 #----------------------------------------
-# FilesystemResolver
+# FilesystemSource
 #----------------------------------------
 
 # Tells FilesystemResolver how to look up files. Allowed values are
@@ -153,8 +166,14 @@ cantaloupe_FilesystemResolver_BasicLookupStrategy_path_prefix: /home/myself/imag
 cantaloupe_FilesystemResolver_BasicLookupStrategy_path_suffix:
 
 #----------------------------------------
-# HttpResolver
+# HttpSource
 #----------------------------------------
+
+# Trusts insecure certificates and cipher suites.
+cantaloupe_HttpSource_allow_insecure: false
+
+# Request timeout in seconds.
+cantaloupe_HttpSource_request_timeout:
 
 # Tells HttpResolver how to look up resources. Allowed values are
 # `BasicLookupStrategy` and `ScriptLookupStrategy`. ScriptLookupStrategy
@@ -173,6 +192,20 @@ cantaloupe_HttpResolver_BasicLookupStrategy_url_suffix:
 # Used for HTTP Basic authentication.
 cantaloupe_HttpResolver_auth_basic_username:
 cantaloupe_HttpResolver_auth_basic_secret:
+
+# Read data in chunks when it may be more efficient. (This also may end up
+# being less efficient, depending on many variables; see the user manual.)
+cantaloupe_HttpSource_chunking_enabled: true
+
+# Chunk size.
+cantaloupe_HttpSource_chunking_chunk_size: 512K
+
+# The per-request chunk cache caches downloaded chunks in memory during
+# a request, and clears them when the request is complete.
+cantaloupe_HttpSource_chunking_cache_enabled: true
+
+# Max per-request chunk cache size.
+cantaloupe_HttpSource_chunking_cache_max_size: 5M
 
 #----------------------------------------
 # JdbcResolver
@@ -195,17 +228,20 @@ cantaloupe_JdbcResolver_connection_timeout: 10
 # AmazonS3Resolver
 #----------------------------------------
 
-# !! Access key ID and secret key associated with your AWS account.
+# !! Endpoint URI.
+# For AWS endpoints, see:
+# https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
+cantaloupe_S3Source_endpoint:
+
+# !! Credentials for your AWS account.
 # See: http://aws.amazon.com/security-credentials
+# Note that this info can be obtained from elsewhere rather than setting
+# it here; see the user manual.
 cantaloupe_AmazonS3Resolver_access_key_id:
 cantaloupe_AmazonS3Resolver_secret_key:
 
-# !! Name of the bucket containing images to be served.
+# !! Name of the bucket containing images to be served
 cantaloupe_AmazonS3Resolver_bucket_name:
-
-# !! Can be left blank.
-# See: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
-cantaloupe_AmazonS3Resolver_bucket_region:
 
 # Tells AmazonS3Resolver how to look up objects. Allowed values are
 # `BasicLookupStrategy` and `ScriptLookupStrategy`. ScriptLookupStrategy
@@ -213,17 +249,41 @@ cantaloupe_AmazonS3Resolver_bucket_region:
 # details.
 cantaloupe_AmazonS3Resolver_lookup_strategy: BasicLookupStrategy
 
+# Path within the bucket that will be prefixed to the identifier in the URL.
+# Trailing slash is important!
+cantaloupe_S3Source_BasicLookupStrategy_path_prefix:
+
+# Path or extension that will be suffixed to the identifier in the URL.
+cantaloupe_S3Source_BasicLookupStrategy_path_suffix:
+
+# Read data in chunks when it may be more efficient. (This also may end up
+# being less efficient, depending on many variables; see the user manual.)
+cantaloupe_S3Source_chunking_enabled: true
+
+# Chunk size.
+cantaloupe_S3Source_chunking_chunk_size: 512K
+
+# The per-request chunk cache caches downloaded chunks in memory during
+# a request, and clears them when the request is complete.
+cantaloupe_S3Source_chunking_cache_enabled: true
+
+# Max per-request chunk cache size.
+cantaloupe_S3Source_chunking_cache_max_size: 5M
+
 #----------------------------------------
 # AzureStorageResolver
 #----------------------------------------
 
 # !! Name of your Azure account.
+# Leave blank if using URI with a SAS token in your object key.
 cantaloupe_AzureStorageResolver_account_name:
 
 # !! Key of your Azure account.
+# Leave blank if using URI with a SAS token in your object key.
 cantaloupe_AzureStorageResolver_account_key:
 
 # !! Name of the container containing images to be served.
+# Leave blank if using URI with the container in your object key.
 cantaloupe_AzureStorageResolver_container_name:
 
 # Tells AzureStorageResolver how to look up objects. Allowed values are
@@ -231,6 +291,20 @@ cantaloupe_AzureStorageResolver_container_name:
 # uses the delegate script for dynamic lookups; see the user manual for
 # details.
 cantaloupe_AzureStorageResolver_lookup_strategy: BasicLookupStrategy
+
+# Read data in chunks when it may be more efficient. (This also may end up
+# being less efficient, depending on many variables; see the user manual.)
+cantaloupe_AzureStorageSource_chunking_enabled: true
+
+# Chunk size.
+cantaloupe_AzureStorageSource_chunking_chunk_size: 512K
+
+# The per-request chunk cache caches downloaded chunks in memory during
+# a request, and clears them when the request is complete.
+cantaloupe_AzureStorageSource_chunking_cache_enabled: true
+
+# Max per-request chunk cache size.
+cantaloupe_AzureStorageSource_chunking_cache_max_size: 5M
 
 ###########################################################################
 # PROCESSORS
@@ -240,15 +314,25 @@ cantaloupe_AzureStorageResolver_lookup_strategy: BasicLookupStrategy
 # Processor Selection
 #----------------------------------------
 
-# Image processors to use for various source formats. Available values are
-# `Java2dProcessor`, `GraphicsMagickProcessor`, `ImageMagickProcessor`,
-# `KakaduProcessor`, `OpenJpegProcessor`, `JaiProcessor`, `PdfBoxProcessor`,
-# and `FfmpegProcessor`.
+# * If set to `AutomaticSelectionStrategy`, a "best" available processor
+#   will be selected per-request based on formats and installed
+#   dependencies.
+# * If set to `ManualSelectionStrategy`, a processor will be chosen based
+#   on the rest of the keys in this section.
+cantaloupe_processor_selection_strategy: AutomaticSelectionStrategy
 
-# These extension-specific definitions are optional.
+# Built-in processors are `Java2dProcessor`, `GraphicsMagickProcessor`,
+# `ImageMagickProcessor`, `TurboJpegProcessor`, `KakaduNativeProcessor`,
+# `KakaduDemoProcessor`, `OpenJpegProcessor`, `JaiProcessor`,
+# `PdfBoxProcessor`, and `FfmpegProcessor`.
+# Some of these have third-party dependencies and won't work out-of-the-box.
+
+# These format-specific definitions are optional.
+
 cantaloupe_processor_avi: FfmpegProcessor
 cantaloupe_processor_bmp:
-cantaloupe_processor_dcm:
+cantaloupe_processor_dcm: ImageMagickProcessor
+cantaloupe_processor_flv: FfmpegProcessor
 cantaloupe_processor_gif:
 cantaloupe_processor_jp2: KakaduProcessor
 cantaloupe_processor_jpg:
@@ -272,6 +356,9 @@ cantaloupe_processor_fallback: Java2dProcessor
 # source image to be read into memory, so can be slow with large images.
 cantaloupe_processor_normalize: "false"
 
+# Resolution of vector rasterization (of e.g. PDFs) at a scale of 1.
+cantaloupe_processor_dpi: 150
+
 # Color of the background when an image is rotated. Only affects output
 # formats that do not support transparency.
 cantaloupe_processor_background_color: black
@@ -286,8 +373,16 @@ cantaloupe_processor_upscale_filter: bicubic
 # Intensity of an unsharp mask from 0 to 1.
 cantaloupe_processor_sharpen: 0
 
+# Attempts to copy source image metadata (EXIF, IPTC, XMP) into derivative
+# images. (This is not foolproof; see the user manual.)
+cantaloupe_processor_metadata_preserve: false
+
+# Whether to auto-rotate images using the EXIF `Orientation` field.
+# The check for this field can impair performance slightly.
+cantaloupe_processor_metadata_respect_orientation: false
+
 # Progressive JPEGs are generally more space-efficient.
-cantaloupe_processor_jpg_progressive: "true"
+cantaloupe_processor_jpg_progressive: true
 
 # JPEG output quality (1-100).
 cantaloupe_processor_jpg_quality: 80
@@ -296,11 +391,37 @@ cantaloupe_processor_jpg_quality: 80
 # `LZW`, and `RLE`. Leave blank for no compression.
 cantaloupe_processor_tif_compression: LZW
 
+# Controls how content is fed to processors from stream-based sources.
+# * `StreamStrategy` will try to stream a source image from a source when
+#   possible, and use `processor.fallback_retrieval_strategy` otherwise.
+# * `DownloadStrategy` will download it to a temporary file, and delete
+#   it after the request is complete.
+# * `CacheStrategy` will download it into the source cache using
+#   FilesystemCache, which must also be configured. (This will perform a
+#   lot better than DownloadStrategy if you can spare the disk space.)
+cantaloupe_processor.stream_retrieval_strategy: StreamStrategy
+
 # Available values are `StreamStrategy` and `CacheStrategy`. StreamStrategy
 # will try to stream source images from non-filesystem resolvers, when this
 # is possible; CacheStrategy will first download them into the source cache
 # using FilesystemCache, which must also be configured.
 cantaloupe_StreamProcessor_retrieval_strategy: StreamStrategy
+
+#----------------------------------------
+# ImageIO Plugin Preferences
+#----------------------------------------
+
+# These override the default plugins used by the application and should not
+# normally be changed.
+cantaloupe_processor_imageio_bmp_reader:
+cantaloupe_processor_imageio_gif_reader:
+cantaloupe_processor_imageio_gif_writer:
+cantaloupe_processor_imageio_jpg_reader:
+cantaloupe_processor_imageio_jpg_writer:
+cantaloupe_processor_imageio_png_reader:
+cantaloupe_processor_imageio_png_writer:
+cantaloupe_processor_imageio_tif_reader:
+cantaloupe_processor_imageio_tif_writer:
 
 #----------------------------------------
 # FfmpegProcessor
@@ -379,29 +500,39 @@ cantaloupe_cache_client_no_transform: "true"
 # `StreamProcessor.retrieval_strategy` set to `CacheStrategy`.
 cantaloupe_cache_source:
 
-# Enables the derivative (processed image) cache. Available values are
-# `FilesystemCache`, `JdbcCache`, `AmazonS3Cache`, and `AzureStorageCache`.
-# Set blank to disable derivative caching.
+# Enables the derivative (processed image) cache.
+cantaloupe_cache_server_derivative_enabled: true
+
+#Available values are `FilesystemCache`, `JdbcCache`, `RedisCache`,
+# `HeapCache`, `S3Cache`, and `AzureStorageCache`.
 cantaloupe_cache_derivative:
 
 # Time before a cached image becomes stale and needs to be reloaded. Set to
 # blank or 0 for infinite.
 cantaloupe_cache_server_ttl_seconds: 2592000
 
+# Amount of time derivative cache content remains valid. Set to blank or 0
+# for forever.
+cantaloupe_cache_server_derivative_ttl_seconds: 2592000
+
+# Whether to use the Java heap as a "level 1" cache for image infos, either
+# independently or in front of a "level 2" derivative cache (if enabled).
+cantaloupe_cache_server_info_enabled: true
+
 # If "true", when a resolver reports that the requested source image has gone
 # missing, all cached information relating to it (if any) will be deleted.
 # (This is effectively always "false" when cache.server.resolve_first is also
 # "false".)
-cantaloupe_cache_server_purge_missing: "false"
+cantaloupe_cache_server_purge_missing: false
 
 # If "true", the source image will be confirmed to exist before a cached copy
 # is returned. If "false", the cached copy will be returned without any
 # checking. Resolving first is slower but safer.
-cantaloupe_cache_server_resolve_first: "false"
+cantaloupe_cache_server_resolve_first: false
 
 # !! Enables the cache worker, which periodically purges expired cache
 # items in the background.
-cantaloupe_cache_server_worker_enabled: "false"
+cantaloupe_cache_server_worker_enabled: false
 
 # !! The cache worker will wait this many seconds between purgings.
 cantaloupe_cache_server_worker_interval: 86400
@@ -424,6 +555,24 @@ cantaloupe_FilesystemCache_dir_depth: 3
 cantaloupe_FilesystemCache_dir_name_length: 2
 
 #----------------------------------------
+# HeapCache
+#----------------------------------------
+
+# Target cache size, in bytes or a number ending in M, MB, G, GB, etc.
+# This is not a hard limit, and may be transiently exceeded.
+# Ensure your heap can accommodate this size.
+cantaloupe_HeapCache_target_size: 2G
+
+# If true, the cache contents will be written to a file on exit and during
+# cache worker shifts, and read back in at startup.
+cantaloupe_HeapCache_persist: false
+
+# When the contents are persisted, this specifies the location of the cache
+# file. If the parent directory does not exist, it will be created
+# automatically.
+cantaloupe_HeapCache_persist_filesystem_pathname: /var/cache/cantaloupe/heap.cache
+
+#----------------------------------------
 # JdbcCache
 #----------------------------------------
 
@@ -444,6 +593,10 @@ cantaloupe_JdbcCache_info_table: info_cache
 #----------------------------------------
 # AmazonS3Cache
 #----------------------------------------
+# !! Endpoint URI.
+# For AWS endpoints, see:
+# https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
+cantaloupe_S3Cache_endpoint:
 
 # !! Access key ID and secret key associated with your AWS account.
 # See: http://aws.amazon.com/security-credentials
@@ -453,12 +606,12 @@ cantaloupe_AmazonS3Cache_secret_key:
 # !! Name of a bucket to use to hold cached data.
 cantaloupe_AmazonS3Cache_bucket_name:
 
-# !! Can be left blank.
-# See: http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
-cantaloupe_AmazonS3Cache_bucket_region:
-
 # !! String that will be prefixed to object keys.
 cantaloupe_AmazonS3Cache_object_key_prefix:
+
+# !! Maximum number of concurrent HTTP connections to AWS. Leave blank to
+# use the default.
+cantaloupe_S3Cache_max_connections:
 
 #----------------------------------------
 # AzureStorageCache
@@ -476,12 +629,23 @@ cantaloupe_AzureStorageCache_container_name:
 # !! String that will be prefixed to object keys.
 cantaloupe_AzureStorageCache_object_key_prefix:
 
+#----------------------------------------
+# RedisCache
+#----------------------------------------
+
+# !! Redis connection info.
+cantaloupe_RedisCache_host: localhost
+cantaloupe_RedisCache_port: 6379
+cantaloupe_RedisCache_ssl: false
+cantaloupe_RedisCache_password:
+cantaloupe_RedisCache_database: 0
+
 ###########################################################################
 # OVERLAYS
 ###########################################################################
 
 # Whether to enable overlays.
-cantaloupe_overlays_enabled: "false"
+cantaloupe_overlays_enabled: false
 
 # Specifies how overlays are configured. `BasicStrategy` will use the
 # `overlays.BasicStrategy.*` keys in this section. `ScriptStrategy` will
@@ -552,18 +716,6 @@ cantaloupe_overlays_BasicStrategy_output_height_threshold: 300
 cantaloupe_redaction_enabled: "false"
 
 ###########################################################################
-# METADATA
-###########################################################################
-
-# Whether to attempt to copy source image metadata (EXIF, IPTC, XMP) into
-# derivative images. (This is not foolproof; see the user manual.)
-cantaloupe_metadata_preserve: "false"
-
-# Whether to respect the EXIF "Orientation" field to auto-rotate images.
-# The check for this field can impair performance slightly.
-cantaloupe_metadata_respect_orientation: "false"
-
-###########################################################################
 # LOGGING
 ###########################################################################
 
@@ -593,6 +745,23 @@ cantaloupe_log_application_SyslogAppender_enabled: "false"
 cantaloupe_log_application_SyslogAppender_host:
 cantaloupe_log_application_SyslogAppender_port: 514
 cantaloupe_log_application_SyslogAppender_facility: LOCAL0
+
+#----------------------------------------
+# Error Log
+#----------------------------------------
+
+# Application log messages with a severity of WARN or greater can be copied
+# into a dedicated error log, which may make them easier to spot.
+
+# N.B.: Don't enable FileAppender and RollingFileAppender simultaneously!
+cantaloupe_log_error_FileAppender_enabled: true
+cantaloupe_log_error_FileAppender_pathname: /var/log/cantaloupe/error.log
+
+cantaloupe_log_error_RollingFileAppender_enabled: false
+cantaloupe_log_error_RollingFileAppender_pathname: /path/to/logs/error.log
+cantaloupe_log_error_RollingFileAppender_policy: TimeBasedRollingPolicy
+cantaloupe_log_error_RollingFileAppender_TimeBasedRollingPolicy_filename_pattern: /path/to/logs/error-%d{yyyy-MM-dd}.log
+cantaloupe_log_error_RollingFileAppender_TimeBasedRollingPolicy_max_history: 30
 
 #----------------------------------------
 # Access Log
