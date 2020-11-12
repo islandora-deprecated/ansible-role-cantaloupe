@@ -12,11 +12,6 @@ cantaloupe_log_path: /var/log/cantaloupe
 cantaloupe_user: cantaloupe
 # Cantaloupe group
 cantaloupe_group: cantaloupe
-# !! Leave blank to use the JVM default temporary directory.
-cantaloupe_temp_pathname:
-#  !! Maximum size of the HTTP(S) request queue. Leave blank to use the
-# default.
-cantaloupe_http_accept_queue_limit:
 
 # Whether to automatically deploy the war file
 cantaloupe_deploy_war: no
@@ -24,6 +19,7 @@ cantaloupe_deploy_war: no
 cantaloupe_deploy_war_path: /path/to/tomcat/webapps
 # Name for the deployed war (minus .war), this is the context path
 cantaloupe_deploy_war_filename: cantaloupe
+
 # Create the filesystem cache directory automatically
 cantaloupe_create_FilesystemCache_dir: no
 
@@ -31,15 +27,20 @@ cantaloupe_create_FilesystemCache_dir: no
 # Cantaloupe.properties config
 ###########################################################################
 
-# !! Whether to enable HTTP access (http://), and on what host interface
-# and TCP port. (Applies in standalone mode only.)
+###########################################################################
+# GENERAL SETTINGS
+###########################################################################
+
+# !! Leave blank to use the JVM default temporary directory.
+cantaloupe_temp_pathname:
+
+# !! Configures the HTTP server. (Standalone mode only.)
 cantaloupe_http_enabled: "true"
 cantaloupe_http_host: 0.0.0.0
 cantaloupe_http_port: 8182
 cantaloupe_http2_enabled: "false"
 
-# !! Whether to enable HTTPS access (https://), and on what host interface
-# and TCP port. (Applies in standalone mode only.)
+# !! Configures the HTTPS server. (Standalone mode only.)
 cantaloupe_https_enabled: "false"
 cantaloupe_https_host: 0.0.0.0
 cantaloupe_https_port: 8183
@@ -51,10 +52,9 @@ cantaloupe_https_key_store_password: myPassword
 cantaloupe_https_key_store_path: /path/to/keystore.jks
 cantaloupe_https_key_password: myPassword
 
-# !! Configures HTTP Basic authentication.
-cantaloupe_auth_basic_enabled: "false"
-cantaloupe_auth_basic_username: admin
-cantaloupe_auth_basic_secret: mypassword
+#  !! Maximum size of the HTTP(S) request queue. Leave blank to use the
+# default.
+cantaloupe_http_accept_queue_limit:
 
 # Base URI to use for internal links, such as Link headers and JSON-LD @id
 # values, in a reverse-proxy context. This should only be used when
@@ -100,12 +100,15 @@ cantaloupe_delegate_script_cache_enabled: "false"
 # ENDPOINTS
 ###########################################################################
 
+# Enables the IIIF Image API 1.x endpoint, at /iiif/1.
 cantaloupe_endpoint_iiif_1_enabled: "true"
 
+# Enables the IIIF Image API 2.x endpoint, at /iiif/2.
 cantaloupe_endpoint_iiif_2_enabled: "true"
 
 # Controls the response Content-Disposition header for images. Allowed
-# values are `inline`, `attachment`, and `none`.
+# values are `inline`, `attachment`, and `none`. This can be overridden
+# using the ?response-content-disposition query argument.
 cantaloupe_endpoint_iiif_content_disposition: inline
 
 # Minimum size that will be used in info.json `sizes` keys.
@@ -132,34 +135,29 @@ cantaloupe_endpoint_api_username:
 cantaloupe_endpoint_api_secret:
 
 ###########################################################################
-# RESOLVERS
+# SOURCES
 ###########################################################################
 
-# Specifies one resolver to translate the identifier in the URL to an image
-# source for all requests. Available values are `FilesystemResolver`,
-# `HttpResolver`, `JdbcResolver`, `AmazonS3Resolver`, and
-# `AzureStorageResolver`.
+# Uses one source for all requests. Available values are `FilesystemSource`,
+# `HttpSource`, `JdbcSource`, `S3Source`, and `AzureStorageSource`.
 cantaloupe_resolver_static: FilesystemResolver
 
-# If "true", `resolver_static` will be overridden, and the
-# `get_resolver(identifier)` delegate script method will be used to select
-# a resolver per-request.
+# If true, `source.static` will be overridden, and the `source()` delegate
+# method will be used to select a source per-request.
 cantaloupe_resolver_delegate: "false"
 
 #----------------------------------------
 # FilesystemSource
 #----------------------------------------
 
-# Tells FilesystemResolver how to look up files. Allowed values are
-# `BasicLookupStrategy` and `ScriptLookupStrategy`. ScriptLookupStrategy
-# uses the delegate script for dynamic lookups; see the user manual for
-# details.
+# How to look up files. Allowed values are `BasicLookupStrategy` and
+# `ScriptLookupStrategy`. ScriptLookupStrategy uses the delegate script for
+# dynamic lookups; see the user manual.
 cantaloupe_FilesystemResolver_lookup_strategy: BasicLookupStrategy
 
 # Server-side path that will be prefixed to the identifier in the URL.
 # Trailing slash is important.
 cantaloupe_FilesystemResolver_BasicLookupStrategy_path_prefix: /home/myself/images/
-
 
 # Server-side path or extension that will be suffixed to the identifier in
 # the URL.
@@ -208,24 +206,7 @@ cantaloupe_HttpSource_chunking_cache_enabled: "true"
 cantaloupe_HttpSource_chunking_cache_max_size: 5M
 
 #----------------------------------------
-# JdbcResolver
-#----------------------------------------
-
-# Note: JdbcResolver requires some delegate methods to be implemented in
-# addition to the configuration here; see the user manual.
-
-# !!
-cantaloupe_JdbcResolver_url: jdbc:postgresql://localhost:5432/my_database
-# !!
-cantaloupe_JdbcResolver_user: postgres
-# !!
-cantaloupe_JdbcResolver_password: postgres
-
-# !! Connection timeout in seconds.
-cantaloupe_JdbcResolver_connection_timeout: 10
-
-#----------------------------------------
-# AmazonS3Resolver
+# S3Source
 #----------------------------------------
 
 # !! Endpoint URI.
@@ -271,7 +252,7 @@ cantaloupe_S3Source_chunking_cache_enabled: "true"
 cantaloupe_S3Source_chunking_cache_max_size: 5M
 
 #----------------------------------------
-# AzureStorageResolver
+# AzureStorageSource
 #----------------------------------------
 
 # !! Name of your Azure account.
@@ -305,6 +286,23 @@ cantaloupe_AzureStorageSource_chunking_cache_enabled: "true"
 
 # Max per-request chunk cache size.
 cantaloupe_AzureStorageSource_chunking_cache_max_size: 5M
+
+#----------------------------------------
+# JdbcSource
+#----------------------------------------
+
+# Note: JdbcResolver requires some delegate methods to be implemented in
+# addition to the configuration here; see the user manual.
+
+# !!
+cantaloupe_JdbcResolver_url: jdbc:postgresql://localhost:5432/my_database
+# !!
+cantaloupe_JdbcResolver_user: postgres
+# !!
+cantaloupe_JdbcResolver_password: postgres
+
+# !! Connection timeout in seconds.
+cantaloupe_JdbcResolver_connection_timeout: 10
 
 ###########################################################################
 # PROCESSORS
@@ -523,16 +521,16 @@ cantaloupe_cache_server_info_enabled: "true"
 # missing, all cached information relating to it (if any) will be deleted.
 # (This is effectively always "false" when cache.server.resolve_first is also
 # "false".)
-cantaloupe_cache_server_purge_missing: "false"
+cantaloupe_cache_server_purge_missing: "true"
 
 # If "true", the source image will be confirmed to exist before a cached copy
 # is returned. If "false", the cached copy will be returned without any
 # checking. Resolving first is slower but safer.
-cantaloupe_cache_server_resolve_first: "false"
+cantaloupe_cache_server_resolve_first: "true"
 
 # !! Enables the cache worker, which periodically purges expired cache
 # items in the background.
-cantaloupe_cache_server_worker_enabled: "false"
+cantaloupe_cache_server_worker_enabled: "true"
 
 # !! The cache worker will wait this many seconds between purgings.
 cantaloupe_cache_server_worker_interval: 86400
