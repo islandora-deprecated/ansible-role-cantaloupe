@@ -521,16 +521,16 @@ cantaloupe_cache_server_info_enabled: "true"
 # missing, all cached information relating to it (if any) will be deleted.
 # (This is effectively always "false" when cache.server.resolve_first is also
 # "false".)
-cantaloupe_cache_server_purge_missing: "true"
+cantaloupe_cache_server_purge_missing: "false"
 
 # If "true", the source image will be confirmed to exist before a cached copy
 # is returned. If "false", the cached copy will be returned without any
 # checking. Resolving first is slower but safer.
-cantaloupe_cache_server_resolve_first: "true"
+cantaloupe_cache_server_resolve_first: "false"
 
 # !! Enables the cache worker, which periodically purges expired cache
 # items in the background.
-cantaloupe_cache_server_worker_enabled: "true"
+cantaloupe_cache_server_worker_enabled: "false"
 
 # !! The cache worker will wait this many seconds between purgings.
 cantaloupe_cache_server_worker_interval: 86400

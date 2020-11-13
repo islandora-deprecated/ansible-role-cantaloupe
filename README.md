@@ -11,7 +11,7 @@ Available variables are listed below, along with default values:
 
 ```
 # Cantaloupe version
-cantaloupe_version: 3.3.1
+cantaloupe_version: 4.1.7
 # Where to extract the cantaloupe archive
 cantaloupe_install_root: /opt
 # Target of a symlink from the extracted cantaloupe archive 
